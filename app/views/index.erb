@@ -1,0 +1,122 @@
+<h1>evotter</h1>
+<p>あのゲームのあんな感じで進化する動画をつくれるよ。</p>
+
+<form id="movie_create_form">
+  <p class="text-asert">文字は、ひらがな、カタカナ、半角英数、ー、！、？、・、…のみ使用できます。</p>
+  進化前の名前(8文字以内)
+  <input id="before_name" name="before[name]" size="30" type="text" />
+  <br>
+  進化前の画像
+  <input id="before_image" name="before[image]" size="30" type="file" accept="image/jpeg, image/png" />
+  <br>
+  進化後の名前(8文字以内)
+  <input id="after_name" name="after[name]" size="30" type="text" />
+  <br>
+  進化後の画像
+  <input id="after_image" name="after[image]" size="30" type="file" accept="image/jpeg, image/png" />
+  <br>
+  <div id='err_messages'>
+  </div>
+  <button name="button" type="button" onclick="createMovie()">
+    動画をつくる！
+  </button>
+</form>
+
+<div id="result-block">
+  <div id="result-link"></div>
+  <div id="tweet-link"></div>
+</div>
+
+<script type="text/javascript">
+  function createMovie() {
+    var form = $("#movie_create_form").get()[0];
+    var formData = new FormData(form);
+
+    if(validateData()) {
+      return;
+    }
+
+    $.ajax({
+      url: '/api/movie/create',
+      method: 'post',
+      dataType: 'json',
+      data: formData,
+      // Ajaxがdataを整形しない指定
+      processData: false,
+      // contentTypeもfalseに指定
+      contentType: false
+    }).done(function( res ) {
+      console.log( 'SUCCESS', res );
+      addResult(res['movie_path']);
+    }).fail(function( jqXHR, textStatus, errorThrown ) {
+      // しっぱい！
+      console.log( 'ERROR', jqXHR, textStatus, errorThrown );
+    });
+    return false;
+  }
+
+  function addResult(url_string) {
+
+    // 動画へのリンク
+    var movieLink = $('<a></a>', {
+      href: url_string,
+      target: "_blank",
+      "class": "movie-link"
+    }).text('動画を見る！');
+    $('#result-link').html(movieLink);
+
+    // ツイートボタン
+    var tweetLink = $('<a></a>', {
+      href: "auth/twitter",
+      "class": "tweet-link"
+    }).text('ツイートする！(サインインが必要です)');
+    $('#tweet-link').html(tweetLink);
+  }
+
+  function validateLength(str_val) {
+    if (str_val == "" || str_val.length == 0 || str_val.length > 8) {
+      return true;
+    }
+    return false;
+  }
+
+  function validateData() {
+    var err_messages = [];
+
+    var before_name = $('#before_name').val();
+    var after_name = $('#after_name').val();
+
+    // 入力文字数のチェック
+    var length_err_msg = "が空か、8文字を超えています。"
+    if (this.validateLength(before_name)) {
+      err_messages.push("進化前の名前" + length_err_msg);
+    }
+    if (this.validateLength(after_name)) {
+      err_messages.push("進化後の名前" + length_err_msg);
+    }
+
+    // 入力文字種のチェック
+    var pattern = /^[a-zA-Z0-9ぁ-んァ-ン!?！？…ー・]+$/;
+    if (before_name.length > 0 && !pattern.test(before_name)) {
+      err_messages.push("進化前の名前に入力できない文字が含まれています。")
+    };
+    if (after_name.length > 0 && !pattern.test(after_name)) {
+      err_messages.push("進化後の名前に入力できない文字が含まれています。")
+    };
+
+    // 入力ファイルのチェック
+    if ($('#before_image')[0].files[0] == null) {
+      err_messages.push("進化前の画像がアップロードされていません。");
+    }
+    if ($('#after_image')[0].files[0] == null) {
+      err_messages.push("進化後の画像がアップロードされていません。");
+    }
+
+    $("#err_messages").html("");
+    err_messages.forEach(function(err_msg) {
+      var err_msg_dom = $('<p />').text(err_msg);
+      $("#err_messages").append(err_msg_dom);
+    });
+    return err_messages.length != 0;
+  }
+</script>
