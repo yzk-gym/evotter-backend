@@ -52,3 +52,4 @@ build-iPhoneSimulator/
 # rubymine setting diles:
 .idea/
 _DS_Store
+.DS_Store

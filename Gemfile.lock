@@ -25,6 +25,7 @@ GEM
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
+    rake (12.3.2)
     rspec (3.8.0)
       rspec-core (~> 3.8.0)
       rspec-expectations (~> 3.8.0)
@@ -38,6 +39,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.8.0)
     rspec-support (3.8.0)
+    rubysl-base64 (2.0.0)
     sinatra (2.0.4)
       mustermann (~> 1.0)
       rack (~> 2.0)
@@ -54,8 +56,10 @@ DEPENDENCIES
   rack
   rack-contrib
   rack-test
+  rake
   rspec
+  rubysl-base64
   sinatra
 
 BUNDLED WITH
-   1.16.1
+   1.17.3
