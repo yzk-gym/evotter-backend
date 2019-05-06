@@ -28,32 +28,60 @@
 </div>
 
 <script type="text/javascript">
+  var before_image = document.getElementById('before_image');
+  var after_image = document.getElementById(('after_image'));
+  var before_reader = new FileReader();
+  var after_reader = new FileReader();
+
+  var before_image_base64 = null;
+  var before_image_type = null;
+  var after_image_base64 = null;
+  var after_image_type = null;
+
   function createMovie() {
-    var form = $("#movie_create_form").get()[0];
-    var formData = new FormData(form);
+      var before_image = { "data": before_image_base64, "type": before_image_type };
+      var before = { "name": document.getElementById('before_name').value, "image": before_image };
+      var after_image = { "data": after_image_base64, "type": after_image_type };
+      var after = { "name": document.getElementById('after_name').value, "image": after_image };
+      var data = {before, after};
 
-    if(validateData()) {
-      return;
-    }
-
-    $.ajax({
-      url: '/api/movie/create',
-      method: 'post',
-      dataType: 'json',
-      data: formData,
-      // Ajaxがdataを整形しない指定
-      processData: false,
-      // contentTypeもfalseに指定
-      contentType: false
-    }).done(function( res ) {
-      console.log( 'SUCCESS', res );
-      addResult(res['movie_path']);
-    }).fail(function( jqXHR, textStatus, errorThrown ) {
-      // しっぱい！
-      console.log( 'ERROR', jqXHR, textStatus, errorThrown );
-    });
-    return false;
+      $.ajax({
+        url: '/movie/create',
+        method: 'post',
+        dataType: 'json',
+        data: JSON.stringify(data),
+        // Ajaxがdataを整形しない指定
+        processData: false,
+        // contentTypeもfalseに指定
+        contentType: false
+      }).done(function( res ) {
+        console.log( 'SUCCESS', res );
+        addResult(res['movie_path']);
+      }).fail(function( jqXHR, textStatus, errorThrown ) {
+        // しっぱい！
+        console.log( 'ERROR', jqXHR, textStatus, errorThrown );
+      });
+      return false;
   }
+
+  before_image.onchange = function() {
+      var file = before_image.files[0];
+      before_reader.readAsDataURL(file);
+  }
+  before_reader.onload = function() {
+      before_image_base64 = before_reader.result.substr(before_reader.result.indexOf(',')+1);
+      before_image_type = "png";
+  }
+
+  after_image.onchange = function() {
+      var file = after_image.files[0];
+      after_reader.readAsDataURL(file);
+  }
+  after_reader.onload = function() {
+      after_image_base64 = after_reader.result.substr(after_reader.result.indexOf(',')+1);
+      after_image_type = "png";
+  }
+
 
   function addResult(url_string) {
 

@@ -6,13 +6,32 @@ get '/' do
   erb :index
 end
 
-post '/api/movie/create' do
-  puts params
-  before_object_image_file = params[:before][:image][:tempfile]
-  before_name = params[:before][:name]
-  after_object_image_file = params[:after][:image][:tempfile]
-  after_name = params[:after][:name]
-  movie_creator = MovieCreator.new(before_object_image_file, before_name, after_object_image_file, after_name)
+# 動画生成API
+# [params]下記のjson形式でパラメータを受け取る
+# {
+#   "before": {
+#     "name": 進化前の名前,
+#     "image": {
+#       "data": 進化前の画像(base64文字列),
+#       "type": "png" or "jpg" or "gif"
+#     }
+#   },
+#   "after": {
+#     "name": 進化後の名前,
+#     "image": {
+#       "data": 進化後の画像(base64文字列),
+#       "type": "png" or "jpg" or "gif"
+#     }
+#   }
+# }
+post '/movie/create' do
+  json_date = JSON.parse(request.body.read)
+  puts json_date
+  # before_object_image_file = params[:before][:image][:tempfile]
+  # before_name = params[:before][:name]
+  # after_object_image_file = params[:after][:image][:tempfile]
+  # after_name = params[:after][:name]
+  # movie_creator = MovieCreator.new(before_object_image_file, before_name, after_object_image_file, after_name)
   content_type :json
   { movie_path: "dummy_path" }.to_json
 end
